@@ -15,16 +15,14 @@ HWND CreateListView(HWND hParent, int x, int y, int w, int h, DWORD ex = 0);
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam);
 bool UpdateProcessList(HWND hListView);
 
-//int WINAPI WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance, char * lpCmdLine, int nCmdShow)
-BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, void * pReserved)
-{	
-	if (dwReason != DLL_PROCESS_ATTACH) return TRUE;
-	//UNREFERENCED_PARAMETER(hPrevInstance);
-	//UNREFERENCED_PARAMETER(lpCmdLine);
+int WINAPI WinMain(HINSTANCE hInstance,	HINSTANCE hPrevInstance, char * lpCmdLine, int nCmdShow)
+{
+	UNREFERENCED_PARAMETER(hPrevInstance);
+	UNREFERENCED_PARAMETER(lpCmdLine);
 
 	SetPrivilege(GetCurrentProcessId());
 
-	g_hInstance = GetModuleHandle(0);
+	g_hInstance = hInstance;
 
 	int width	= 300;
 	int height	= 300;
@@ -33,14 +31,14 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, void * pReserved)
 	WNDCLASSEX wc{ 0 };
 	wc.cbSize			= sizeof(WNDCLASSEX);
 	wc.lpfnWndProc		= WindowProc;
-	wc.hInstance		= GetModuleHandle(0);
+	wc.hInstance		= hInstance;
 	wc.hCursor			= LoadCursor(0, IDC_ARROW);
 	wc.hbrBackground	= (HBRUSH)COLOR_WINDOW;
 	wc.lpszClassName	= TEXT("WindowClass");
 
 	RegisterClassEx(&wc);
 
-	hWnd = CreateWindowEx(0, TEXT("WindowClass"), TEXT("SetDebugPrivilege"), WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX, 150, 150, width, height, 0, 0, GetModuleHandle(0), nullptr);
+	hWnd = CreateWindowEx(0, TEXT("WindowClass"), TEXT("SetDebugPrivilege"), WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX, 150, 150, width, height, 0, 0, hInstance, nullptr);
 
 	ShowWindow(hWnd, 5);
 
@@ -58,7 +56,7 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, void * pReserved)
 	lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM | LVS_REPORT;
 	lvc.pszText = const_cast<TCHAR*>(TEXT("Processname"));
 	lvc.cx = width - 70;
-	LoadString(GetModuleHandle(0), 0, szText, sizeof(szText) / sizeof(TCHAR));
+	LoadString(hInstance, 0, szText, sizeof(szText) / sizeof(TCHAR));
 	ListView_InsertColumn(g_hListView, 0, &lvc);
 
 	ZeroMemory(&lvc, sizeof(lvc));
@@ -66,15 +64,15 @@ BOOL WINAPI DllMain(HINSTANCE hDll, DWORD dwReason, void * pReserved)
 	lvc.mask = LVCF_FMT | LVCF_WIDTH | LVCF_TEXT | LVCF_SUBITEM | LVS_REPORT;
 	lvc.pszText = const_cast<TCHAR*>(TEXT("PID"));
 	lvc.cx = 50;
-	LoadString(GetModuleHandle(0), 1, szText, sizeof(szText) / sizeof(TCHAR));
+	LoadString(hInstance, 1, szText, sizeof(szText) / sizeof(TCHAR));
 	ListView_InsertColumn(g_hListView, 1, &lvc);
 
 	UpdateProcessList(g_hListView);
 
 	ShowWindow(g_hListView, 5);
 
-	HWND h_B_Update		= CreateWindow(TEXT("BUTTON"), TEXT("Update"),			WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10,				height - 40, width / 2 - 15, 30, hWnd, NULL, GetModuleHandle(0), nullptr);
-	HWND h_B_SetPriv	= CreateWindow(TEXT("BUTTON"), TEXT("Set Privilege"),	WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, width / 2 + 5,	height - 40, width / 2 - 15, 30, hWnd, NULL, GetModuleHandle(0), nullptr);
+	HWND h_B_Update		= CreateWindow(TEXT("BUTTON"), TEXT("Update"),			WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, 10,				height - 40, width / 2 - 15, 30, hWnd, NULL, hInstance, nullptr);
+	HWND h_B_SetPriv	= CreateWindow(TEXT("BUTTON"), TEXT("Set Privilege"),	WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_DEFPUSHBUTTON, width / 2 + 5,	height - 40, width / 2 - 15, 30, hWnd, NULL, hInstance, nullptr);
 	
 	ShowWindow(h_B_Update, 5);
 	ShowWindow(h_B_SetPriv, 5);

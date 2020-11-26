@@ -1,1 +1,5 @@
 .vs/
+Debug/
+SetDebugPrivilege/Debug/
+SetDebugPrivilege/x64/
+x64/
